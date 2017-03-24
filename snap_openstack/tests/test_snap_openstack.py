@@ -46,11 +46,15 @@ class TestOpenStackSnapExecute(test_base.TestCase):
         }
         return paths.get(path, False)
 
-    @patch('snap_openstack.utils.SnapUtils')
+    def mock_snap_utils(self, mock_utils):
+        snap_utils = mock_utils.return_value
+        snap_utils.snap_env.return_value = MOCK_SNAP_ENV
+
+    @patch('snap_openstack.base.SnapUtils')
     @patch.object(base, 'os')
-    def test_base_snap_config(self, mock_os, mock_snap_utils):
+    def test_base_snap_config(self, mock_os, mock_utils):
         '''Ensure wrapped binary called with full args list'''
-        mock_snap_utils.snap_env.return_value = MOCK_SNAP_ENV
+        self.mock_snap_utils(mock_utils)
         snap = base.OpenStackSnap(os.path.join(TEST_DIR,
                                                'snap-openstack.yaml'))
         mock_os.path.exists.side_effect = self.mock_exists
@@ -64,12 +68,11 @@ class TestOpenStackSnapExecute(test_base.TestCase):
              '--log-file=/var/log/nova/scheduler.log']
         )
 
-    @patch('snap_openstack.utils.SnapUtils')
+    @patch('snap_openstack.base.SnapUtils')
     @patch.object(base, 'os')
-    def test_base_snap_config_no_logging(self, mock_os,
-                                         mock_snap_utils):
+    def test_base_snap_config_no_logging(self, mock_os, mock_utils):
         '''Ensure wrapped binary called correctly with no logfile'''
-        mock_snap_utils.snap_env.return_value = MOCK_SNAP_ENV
+        self.mock_snap_utils(mock_utils)
         snap = base.OpenStackSnap(os.path.join(TEST_DIR,
                                                'snap-openstack.yaml'))
         mock_os.path.exists.side_effect = self.mock_exists
@@ -84,12 +87,11 @@ class TestOpenStackSnapExecute(test_base.TestCase):
              'db', 'sync']
         )
 
-    @patch('snap_openstack.utils.SnapUtils')
+    @patch('snap_openstack.base.SnapUtils')
     @patch.object(base, 'os')
-    def test_base_snap_config_missing_entry_point(self, mock_os,
-                                                  mock_snap_utils):
+    def test_base_snap_config_missing_entry_point(self, mock_os, mock_utils):
         '''Ensure ValueError raised for missing entry_point'''
-        mock_snap_utils.snap_env.return_value = MOCK_SNAP_ENV
+        self.mock_snap_utils(mock_utils)
         snap = base.OpenStackSnap(os.path.join(TEST_DIR,
                                                'snap-openstack.yaml'))
         mock_os.path.exists.side_effect = self.mock_exists
@@ -98,12 +100,11 @@ class TestOpenStackSnapExecute(test_base.TestCase):
                           ['snap-openstack',
                            'nova-api'])
 
-    @patch('snap_openstack.utils.SnapUtils')
+    @patch('snap_openstack.base.SnapUtils')
     @patch.object(base, 'os')
-    def test_base_snap_config_uwsgi(self, mock_os,
-                                    mock_snap_utils):
+    def test_base_snap_config_uwsgi(self, mock_os, mock_utils):
         '''Ensure wrapped binary of uwsgi called with correct arguments'''
-        mock_snap_utils.snap_env.return_value = MOCK_SNAP_ENV
+        self.mock_snap_utils(mock_utils)
         snap = base.OpenStackSnap(os.path.join(TEST_DIR,
                                                'snap-openstack.yaml'))
         mock_os.path.exists.side_effect = self.mock_exists
@@ -117,12 +118,11 @@ class TestOpenStackSnapExecute(test_base.TestCase):
              '--logto', '/var/log/keystone/keystone.log']
         )
 
-    @patch('snap_openstack.utils.SnapUtils')
+    @patch('snap_openstack.base.SnapUtils')
     @patch.object(base, 'os')
-    def test_base_snap_config_invalid_ep_type(self, mock_os,
-                                              mock_snap_utils):
+    def test_base_snap_config_invalid_ep_type(self, mock_os, mock_utils):
         '''Ensure endpoint types are correctly validated'''
-        mock_snap_utils.snap_env.return_value = MOCK_SNAP_ENV
+        self.mock_snap_utils(mock_utils)
         snap = base.OpenStackSnap(os.path.join(TEST_DIR,
                                                'snap-openstack.yaml'))
         mock_os.path.exists.side_effect = self.mock_exists
